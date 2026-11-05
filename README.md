@@ -45,6 +45,8 @@ python run_all.py --kernel protest-tactics --raw data_local/raw/Base_Observatori
 
 The runner executes notebooks 01–08 in order in real Jupyter kernels, writes the executed copies to `executed/`, and creates local inputs and outputs beneath `data_local/` and `results/`. Pass another workbook path with `--raw` if the three downloaded files are together elsewhere. For a partial rerun use, for example, `python run_all.py --kernel protest-tactics --only 06 07` once the required upstream results have been produced. Open a notebook directly in Jupyter to change a cell and inspect its new inline output.
 
+If your environment blocks Jupyter kernel sockets, use `python run_all.py --inprocess` with the same `--raw` or `--only` options. This mode runs a socket-free Jupyter kernel using the active Python environment and preserves native outputs.
+
 | Notebook | Purpose |
 |---|---|
 | 01 | Verify the source workbook, reconstruct the study sample and check the two manuals. |
