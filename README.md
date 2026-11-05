@@ -1,6 +1,6 @@
 # Protest tactics in Chile, 2008–2024
 
-Analysis code for Cristian Candia’s manuscript *Protest tactics change in how often they are used more than in how they are combined: Chile, 2008–2024*. The study analyses 27,488 protest actions recorded in Chilean newspapers. It compares observed pairs of tactics with reference models preserving the recorded tactic frequencies and the number of tactics per action.
+Analysis code for Cristian Candia’s manuscript *Tactic frequencies shifted while patterns of co-occurrence persisted in Chilean protests, 2008–2024*. The study analyses 27,488 protest actions recorded in Chilean newspapers. It compares observed pairs of tactics with reference models preserving the recorded tactic frequencies and the number of tactics per action.
 
 ## Read or verify the results
 
@@ -13,7 +13,7 @@ python -m pip install -r requirements-verify.txt
 python verify_targets.py
 ```
 
-This writes Figure 4 as PDF, PNG and TIFF, together with `verification/checks.json`. The check compares each year’s plotted estimate and interval in panel (a) with the figure data and independently calculates the three raw and dispersion-adjusted comparisons in panel (b). Under N2, the two measures are a 71.24% relative reduction in deviance and a 95.94% relative reduction in dispersion-adjusted Pearson discrepancy. Neither percentage estimates the fraction of change caused by tactic frequencies.
+This writes Figure 4 as PDF, PNG and TIFF, together with `verification/checks.json`. The check compares each year’s plotted estimate and interval in panel (a) with the figure data and independently calculates the three raw and dispersion-adjusted comparisons in panel (b). Under N2, the two measures are a 71.24% relative reduction in deviance and a 95.94% relative reduction in dispersion-adjusted Pearson discrepancy.
 
 To regenerate Supplementary Table S11 as well, supply a `results/` directory created by the full analysis or provided separately for peer review. This command runs only the S11 section of notebook 06 and the Figure 4 section of notebook 07, in an isolated working directory:
 
