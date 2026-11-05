@@ -1,0 +1,198 @@
+{
+  "frozen_at_utc": "2026-11-03T18:47Z",
+  "frozen_before": "any new P29 pair cross-tabulation for 2008-2024 (only yearly marginals were inspected)",
+  "inherits_from": "Paquete Piloto_paper_protestas_reproducible (scripts/prepare_data.py, scripts/tactic_packages.py, docs/coding_labels.json); Plan_paper_2008_2024.md",
+  "source": {
+    "file": "Base_Observatorio_conflictos_2005-2024_v1.xlsx",
+    "default_relative_path_from_notebooks": "../../../dataverse_files/Base_Observatorio_conflictos_2005-2024_v1.xlsx",
+    "env_var_override": "PROTEST_RAW",
+    "sha256": "24b1870f1098d233674d6489a2df9ce2ba4e2fc74140015e01c555976e37075c",
+    "dataverse_doi": "10.7910/DVN/GKQXBR"
+  },
+  "sample": {
+    "years": [
+      2008,
+      2024
+    ],
+    "main": "PB == 0 (newspapers)",
+    "sensitivity_all_media": "all rows regardless of PB",
+    "filters": [
+      "remove exact duplicate rows",
+      "valid start date (P5a-c)",
+      "at least one valid P29 code 1-35",
+      "no valid code repeated across P29 slots"
+    ],
+    "residual_code": 99,
+    "valid_codes": [
+      1,
+      35
+    ],
+    "not_used": [
+      "P14 targets",
+      "attendance",
+      "participant identities",
+      "P19 demands"
+    ]
+  },
+  "tactic_families_codebook": {
+    "A_peaceful_1": [
+      1,
+      6
+    ],
+    "B_peaceful_2": [
+      7,
+      14
+    ],
+    "C_artistic": [
+      15,
+      17
+    ],
+    "D_disruptive_nonviolent": [
+      18,
+      24
+    ],
+    "E_self_destructive": [
+      25,
+      26
+    ],
+    "F_violent": [
+      27,
+      35
+    ]
+  },
+  "context": {
+    "region_harmonization": {
+      "15": 1,
+      "14": 10,
+      "16": 8
+    },
+    "territorial_blocks": {
+      "block_1_5": [
+        1,
+        5
+      ],
+      "block_6_8": [
+        6,
+        8
+      ],
+      "block_9_12": [
+        9,
+        12
+      ],
+      "region_13": [
+        13,
+        13
+      ]
+    },
+    "p20a_broad": "pilot dictionary broad_theme() (social_reproduction, institutional, cultural, territorial, other, unclassified, missing)"
+  },
+  "null_models": {
+    "N1": "swap tactic codes between occupied slots of different actions in the same calendar month; preserves list size per action and monthly tactic frequencies",
+    "N2": "swap within year x territorial block x P20a broad x slot position; preserves occupied-slot mask per action and slot-specific frequencies per context cell",
+    "N2_clean": "N2 after dropping codes 2 and 10 and excluding actions with residual 99, invalid codes or six occupied slots; list sizes recomputed",
+    "N2_allmedia": "N2 on all media",
+    "N2_order": "N2 rejecting swaps that change the ascending-numeric-order status of either action",
+    "N1_k2": "N1 restricted to actions with exactly two valid tactics (added in v2 before results: list-size drift sensitivity)"
+  },
+  "primary_reference": "N2",
+  "secondary_reference": "N1",
+  "mcmc": {
+    "samples_per_spec": 999,
+    "chains": 4,
+    "samples_per_chain": [
+      250,
+      250,
+      250,
+      249
+    ],
+    "burn_in_proposals": "20 x n_edges",
+    "thinning_proposals": "10 x n_edges",
+    "seed_rule": "20261103 + 1000*spec_index + 101*chain",
+    "threads_max": 2,
+    "diagnostics": [
+      "acceptance",
+      "fraction of slots changed vs observed",
+      "lag-1 autocorrelation",
+      "split R-hat",
+      "effective sample size",
+      "exact uniformity test on enumerable fixture",
+      "cross-check vs pilot C++ kernel"
+    ]
+  },
+  "effects": {
+    "log_ratio": "log2((O+0.5)/(E+0.5))",
+    "also": [
+      "O-E",
+      "z=(O-E)/sd_null",
+      "two-sided Monte Carlo p",
+      "BH q over 595 pairs"
+    ],
+    "strong_threshold_ratio": 1.5
+  },
+  "eligibility": {
+    "primary": "both tactics >= 50 actions in 2008-2024 main sample AND E_N1(2008-2024) >= 5; applied to every reference",
+    "per_comparison": "E >= 5 and null sd > 0 on both sides, using the reference being evaluated",
+    "pilot_frozen_sensitivity": "both tactics >= 50 actions in 2008-2018 AND E_N1(2008-2018) >= 5"
+  },
+  "annual": {
+    "year_vs_rest": "theta_rest = log2((sum O_others + 0.5)/(sum E_others + 0.5)); never averaged log ratios",
+    "also": [
+      "adjacent years",
+      "all year x year pairs",
+      "common-support intersection",
+      "equal-year-weight sensitivity (each other year weighted 1/n_year)",
+      "pilot windows 2008-2018 vs 2021-2024"
+    ],
+    "metrics": [
+      "pearson",
+      "spearman",
+      "sign agreement",
+      "strong-sign agreement (|theta_ref| >= log2 1.5)"
+    ]
+  },
+  "calibration_v2": {
+    "split_half": {
+      "unit": "protest day",
+      "splits_per_year": 50,
+      "seed": 20261104,
+      "formula": "Spearman-Brown; ceiling = sqrt(rel_year*rel_rest); disattenuated r = r/ceiling"
+    },
+    "permutation": {
+      "scheme": "permute year labels of months within each calendar month (12 strata x 17 years)",
+      "B": 999,
+      "seed": 20261105,
+      "statistics": [
+        "per-year r(year, rest) band",
+        "mean year-vs-rest r",
+        "deviance of constant-structure model"
+      ],
+      "per_year_flag": "observed r below permutation distribution, Holm-adjusted across 17 years"
+    }
+  },
+  "loglinear": {
+    "models": {
+      "M0": "log mu = log E_ht + c_t",
+      "M1": "+ psi_h (constant structure)",
+      "M2": "+ phi_t*psi_h (uniform difference)",
+      "MA": "log mu = c_t + gamma_h (constant pair shares; no null)"
+    },
+    "pairs": "primary eligibility set",
+    "phi_normalization": "geometric mean over years = 1",
+    "bootstrap": {
+      "unit": "protest day within year",
+      "B": 999,
+      "seed": 20261106
+    },
+    "decomposition": "frequency share = 1 - [D(M1)-Dperm(M1)]/[D(MA)-Dperm(MA)], with permutation means as noise floors"
+  },
+  "editorial_rule": "see PLAN_v2_evaluacion_y_mejoras.md section 4",
+  "outputs": {
+    "release_excludes": [
+      "raw xlsx",
+      "action-level or day-level rows",
+      "per-action expectations",
+      "compiled binaries",
+      "caches"
+    ]
+  }
+}

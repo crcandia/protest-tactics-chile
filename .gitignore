@@ -1,0 +1,13 @@
+.venv/
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+.DS_Store
+data_local/
+results/
+executed/
+verification/
+*.xlsx
+*.parquet
+*.npz
+*.npy
