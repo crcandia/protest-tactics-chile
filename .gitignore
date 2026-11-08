@@ -6,7 +6,6 @@ __pycache__/
 data_local/
 results/
 executed/
-verification/
 *.xlsx
 *.parquet
 *.npz
