@@ -1,13 +1,11 @@
 {
-  "frozen_at_utc": "2026-11-03T18:47Z",
-  "frozen_before": "any new P29 pair cross-tabulation for 2008-2024 (only yearly marginals were inspected)",
-  "inherits_from": "Paquete Piloto_paper_protestas_reproducible (scripts/prepare_data.py, scripts/tactic_packages.py, docs/coding_labels.json); Plan_paper_2008_2024.md",
   "source": {
     "file": "Base_Observatorio_conflictos_2005-2024_v1.xlsx",
-    "default_relative_path_from_notebooks": "../../../dataverse_files/Base_Observatorio_conflictos_2005-2024_v1.xlsx",
     "env_var_override": "PROTEST_RAW",
     "sha256": "24b1870f1098d233674d6489a2df9ce2ba4e2fc74140015e01c555976e37075c",
-    "dataverse_doi": "10.7910/DVN/GKQXBR"
+    "dataverse_doi": "10.7910/DVN/GKQXBR",
+    "dataverse_version": "9.0",
+    "local_directory": "data_local/raw/"
   },
   "sample": {
     "years": [
@@ -26,12 +24,6 @@
     "valid_codes": [
       1,
       35
-    ],
-    "not_used": [
-      "P14 targets",
-      "attendance",
-      "participant identities",
-      "P19 demands"
     ]
   },
   "tactic_families_codebook": {
@@ -84,7 +76,7 @@
         13
       ]
     },
-    "p20a_broad": "pilot dictionary broad_theme() (social_reproduction, institutional, cultural, territorial, other, unclassified, missing)"
+    "p20a_broad": "social_reproduction, institutional, cultural, territorial, other, unclassified, missing; spelling dictionary in notebook 01"
   },
   "null_models": {
     "N1": "swap tactic codes between occupied slots of different actions in the same calendar month; preserves list size per action and monthly tactic frequencies",
@@ -92,7 +84,7 @@
     "N2_clean": "N2 after dropping codes 2 and 10 and excluding actions with residual 99, invalid codes or six occupied slots; list sizes recomputed",
     "N2_allmedia": "N2 on all media",
     "N2_order": "N2 rejecting swaps that change the ascending-numeric-order status of either action",
-    "N1_k2": "N1 restricted to actions with exactly two valid tactics (added in v2 before results: list-size drift sensitivity)"
+    "N1_k2": "N1 restricted to actions with exactly two valid tactics"
   },
   "primary_reference": "N2",
   "secondary_reference": "N1",
@@ -105,9 +97,6 @@
       250,
       249
     ],
-    "burn_in_proposals": "20 x n_edges",
-    "thinning_proposals": "10 x n_edges",
-    "seed_rule": "20261103 + 1000*spec_index + 101*chain",
     "threads_max": 2,
     "diagnostics": [
       "acceptance",
@@ -116,8 +105,12 @@
       "split R-hat",
       "effective sample size",
       "exact uniformity test on enumerable fixture",
-      "cross-check vs pilot C++ kernel"
-    ]
+      "comparison with independent C++ sampler"
+    ],
+    "burn_in_per_field": 20,
+    "thinning_per_field": 10,
+    "seed": 20261103,
+    "seed_rule": "seed + 1000 * spec_index + 101 * chain_index (zero-based, models in the listed order)"
   },
   "effects": {
     "log_ratio": "log2((O+0.5)/(E+0.5))",
@@ -132,16 +125,16 @@
   "eligibility": {
     "primary": "both tactics >= 50 actions in 2008-2024 main sample AND E_N1(2008-2024) >= 5; applied to every reference",
     "per_comparison": "E >= 5 and null sd > 0 on both sides, using the reference being evaluated",
-    "pilot_frozen_sensitivity": "both tactics >= 50 actions in 2008-2018 AND E_N1(2008-2018) >= 5"
+    "early_period_selection": "both tactics >= 50 actions in 2008-2018 AND E_N1(2008-2018) >= 5"
   },
   "annual": {
     "year_vs_rest": "theta_rest = log2((sum O_others + 0.5)/(sum E_others + 0.5)); never averaged log ratios",
     "also": [
       "adjacent years",
-      "all year x year pairs",
+      "all pairs of years",
       "common-support intersection",
-      "equal-year-weight sensitivity (each other year weighted 1/n_year)",
-      "pilot windows 2008-2018 vs 2021-2024"
+      "equal-year weighting by inverse total observed pair counts",
+      "pooled 2008-2018 versus 2021-2024"
     ],
     "metrics": [
       "pearson",
@@ -150,7 +143,35 @@
       "strong-sign agreement (|theta_ref| >= log2 1.5)"
     ]
   },
-  "calibration_v2": {
+  "loglinear": {
+    "models": {
+      "M0": "log mu_ht = log E_ht + c_t",
+      "M1": "log mu_ht = log E_ht + c_t + psi_h",
+      "M2": "log mu_ht = log E_ht + c_t + phi_t * psi_h",
+      "MA": "log mu_ht = c_t + gamma_h"
+    },
+    "pairs": "primary eligibility set",
+    "phi_normalization": "geometric mean over years = 1",
+    "bootstrap": {
+      "unit": "protest day within year",
+      "B": 999,
+      "seed": 20261106
+    },
+    "fit_gain_deviance": "1 - D(M1) / D(MA)",
+    "fit_gain_dispersion_adjusted": "1 - [X2(M1) - dispersion * df] / [X2(MA) - dispersion * df]",
+    "comparison": "M1 and MA have equal numbers of parameters; the dispersion-adjusted comparison is a sensitivity measure"
+  },
+  "outputs": {
+    "release_excludes": [
+      "raw xlsx",
+      "action-level or day-level rows",
+      "per-action expectations",
+      "compiled binaries",
+      "caches",
+      "generated aggregate files (shown in notebooks and recreated locally)"
+    ]
+  },
+  "calibration": {
     "split_half": {
       "unit": "protest day",
       "splits_per_year": 50,
@@ -162,37 +183,38 @@
       "B": 999,
       "seed": 20261105,
       "statistics": [
-        "per-year r(year, rest) band",
-        "mean year-vs-rest r",
-        "deviance of constant-structure model"
-      ],
-      "per_year_flag": "observed r below permutation distribution, Holm-adjusted across 17 years"
-    }
-  },
-  "loglinear": {
-    "models": {
-      "M0": "log mu = log E_ht + c_t",
-      "M1": "+ psi_h (constant structure)",
-      "M2": "+ phi_t*psi_h (uniform difference)",
-      "MA": "log mu = c_t + gamma_h (constant pair shares; no null)"
+        "mean year-versus-rest correlation",
+        "deviance of log-linear models (diagnostic)"
+      ]
     },
-    "pairs": "primary eligibility set",
-    "phi_normalization": "geometric mean over years = 1",
-    "bootstrap": {
+    "correlation_bootstrap": {
       "unit": "protest day within year",
       "B": 999,
-      "seed": 20261106
-    },
-    "decomposition": "frequency share = 1 - [D(M1)-Dperm(M1)]/[D(MA)-Dperm(MA)], with permutation means as noise floors"
+      "seed": 20261107,
+      "purpose": "diagnostic of correlation attenuation and log-ratio heterogeneity; annual departures use the within-year F comparison"
+    }
   },
-  "editorial_rule": "see PLAN_v2_evaluacion_y_mejoras.md section 4",
-  "outputs": {
-    "release_excludes": [
-      "raw xlsx",
-      "action-level or day-level rows",
-      "per-action expectations",
-      "compiled binaries",
-      "caches"
-    ]
+  "departure": {
+    "seed": 20261108,
+    "splits": 50,
+    "minimum_expected": 2.0,
+    "unit": "protest day within year",
+    "statistic": "F = (between-year Pearson X2 / df) / (mean within-year Pearson X2 / mean df)",
+    "multiplicity": "Holm adjustment across 17 years within each reference"
+  },
+  "change": {
+    "B": 999,
+    "seed": 20261107,
+    "periods": [
+      [
+        2008,
+        2018
+      ],
+      [
+        2021,
+        2024
+      ]
+    ],
+    "unit": "protest day within year"
   }
 }
