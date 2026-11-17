@@ -15,15 +15,27 @@ The notebooks contain the analysis code and explain the definitions, assumptions
 
 ## Obtain the data
 
-Download these three files from the COES *Observatory of Conflicts – Cumulative Dataset*, Harvard Dataverse [version 9.0](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/GKQXBR&version=9.0). Accept the dataset terms and complete the download guestbook. Keep the original filenames together in `data_local/raw/`.
+Download these three files from the COES *Observatory of Conflicts – Cumulative Dataset*, Harvard Dataverse [version 9.0](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/GKQXBR&version=9.0). Review and accept the dataset terms yourself and complete the download guestbook. Keep the original filenames together in `data_local/raw/`.
 
 | File | Use |
 |---|---|
-| `Base_Observatorio_conflictos_2005-2024_v1.xlsx` | Original event workbook |
-| `User_Manual_OC_Dataset_ 2009_2019.pdf` | Tactic definitions in the first manual; the filename includes a space before `2009` |
-| `Manual_Usuario_OCS_2020.pdf` | Tactic definitions in the second manual |
+| [`Base_Observatorio_conflictos_2005-2024_v1.xlsx`](https://dataverse.harvard.edu/file.xhtml?fileId=11982287) | Original event workbook |
+| [`User_Manual_OC_Dataset_ 2009_2019.pdf`](https://dataverse.harvard.edu/file.xhtml?fileId=4625132) | Tactic definitions in the first manual; the filename includes a space before `2009` |
+| [`Manual_Usuario_OCS_2020.pdf`](https://dataverse.harvard.edu/file.xhtml?fileId=7099370) | Tactic definitions in the second manual |
 
-Notebook 01 verifies the workbook SHA-256 checksum, `24b1870f1098d233674d6489a2df9ce2ba4e2fc74140015e01c555976e37075c`, and compares the tactic definitions between the manuals. The COES terms require each user to obtain the data directly. Original files and action-level or day-level intermediates stay local and are excluded from version control; the saved notebook outputs contain aggregates.
+Create the input folder from the repository root with `mkdir -p data_local/raw`, then place the three downloaded files there without renaming or editing them:
+
+```text
+protest-tactics-chile/
+  run_all.py
+  data_local/
+    raw/
+      Base_Observatorio_conflictos_2005-2024_v1.xlsx
+      User_Manual_OC_Dataset_ 2009_2019.pdf
+      Manual_Usuario_OCS_2020.pdf
+```
+
+The code does not search Downloads, Dropbox or other personal folders. Notebook 01 verifies the workbook SHA-256 checksum, `24b1870f1098d233674d6489a2df9ce2ba4e2fc74140015e01c555976e37075c`, and compares the tactic definitions between the manuals. The COES terms require each user to obtain the data directly. Original files and action-level or day-level intermediates stay local and are excluded from version control; the saved notebook outputs contain aggregates.
 
 ## Reproduce the paper
 
@@ -34,12 +46,12 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 python -m ipykernel install --user --name protest-tactics --display-name "Protest tactics (Python)"
-python run_all.py --kernel protest-tactics --raw data_local/raw/Base_Observatorio_conflictos_2005-2024_v1.xlsx
+python run_all.py --kernel protest-tactics
 ```
 
 The runner executes notebooks 01–08, stops on errors and saves newly executed copies in `executed/`. It creates `data_local/` for reconstructed records and day-level intermediates, and `results/` for aggregate calculations and manuscript exports. All three directories are ignored by Git. The first run computes all references and bootstrap samples; allow time for notebook 02's samplers and notebooks 04–06's resampling.
 
-Use `--raw` with another workbook path if the downloaded files are stored elsewhere. To rerun selected steps after their inputs have been generated, use, for example:
+The default input location above needs no path configuration. Use `--raw` with another workbook path only if the downloaded files are stored elsewhere; keep both manuals beside it. Relative `--raw` paths are interpreted from the repository root, even when the runner is invoked from another directory. `PROTEST_RAW` is an alternative to `--raw`; the command-line option takes precedence. To rerun selected steps after their inputs have been generated, use, for example:
 
 ```bash
 python run_all.py --kernel protest-tactics --only 06 07 08

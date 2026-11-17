@@ -80,7 +80,7 @@ def isolated_kernel(source, output, timeout):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--raw", type=Path, help="COES workbook (default: data_local/raw/ or PROTEST_RAW)"
+        "--raw", type=Path, help="COES workbook; relative paths are relative to this repository (default: data_local/raw/ or PROTEST_RAW)"
     )
     parser.add_argument(
         "--only",
@@ -107,13 +107,16 @@ def main():
         parser.error("Missing notebook in notebooks/. Use a complete copy of this repository.")
 
     raw = args.raw or Path(os.environ.get("PROTEST_RAW", ROOT / "data_local" / "raw" / WORKBOOK))
-    raw = raw.expanduser().resolve()
+    raw = raw.expanduser()
+    if not raw.is_absolute():
+        raw = ROOT / raw
+    raw = raw.resolve()
     if "01" in selected:
         missing = [p for p in (raw, *(raw.parent / n for n in MANUALS)) if not p.is_file()]
         if missing:
             parser.error(
                 "Download these files from COES (instructions in README.md): "
-                + ", ".join(p.name for p in missing)
+                + ", ".join(str(p) for p in missing)
             )
     if "02" in selected and not (shutil.which("g++") or shutil.which("clang++")):
         parser.error(
